@@ -1,0 +1,12 @@
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.csv
+*.h5
+*.keras
+.DS_Store
+Thumbs.db
+desktop.ini
