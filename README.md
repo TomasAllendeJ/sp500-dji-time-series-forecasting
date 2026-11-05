@@ -2,7 +2,7 @@
 
 Análisis y pronóstico de series de tiempo sobre dos de los principales índices bursátiles de EE.UU. — **S&P 500 (`^GSPC`)** y **Dow Jones (`^DJI`)** — comparando tres enfoques de forecasting: **Holt-Winters**, **ARIMA rolling (walk-forward)** y una red neuronal **LSTM**.
 
-> Proyecto del curso *IA Generativa para la Gestión*. Equipo: Tomás Allende · Juan Costa · Felipe Castillo.
+> Proyecto del curso *IA Generativa para la Gestión*. Equipo: [Tomás Allende](https://github.com/TomasAllendeJ) · Juan Costa · [Felipe Castillo](https://github.com/CastilloFelipe).
 
 ---
 
@@ -20,7 +20,7 @@ Determinar si la relación entre el S&P 500 y el Dow Jones es **explotable** (co
 |---|---|
 | **Tickers** | `^GSPC` (S&P 500), `^DJI` (Dow Jones) |
 | **Fuente** | Yahoo Finance vía `yfinance` |
-| **Período** | 2015-01-01 → 2025-09-16 (~10,7 años, frecuencia diaria) |
+| **Período** | 2015-09-16 → 2025-09-16 (10 años, frecuencia diaria) |
 | **Variable** | Precio de cierre (`Close`) |
 | **Partición** | 80% entrenamiento / 20% prueba |
 
@@ -42,10 +42,32 @@ Determinar si la relación entre el S&P 500 y el Dow Jones es **explotable** (co
 | ARIMA (rolling) | ~0,67 % | 0,99 | Sigue la serie con desfase mínimo de un día. |
 | **LSTM** | ~0,67 % | 0,99 | Ligeramente mejor (MAE más bajo). |
 
+**Relación entre índices:** la correlación entre el S&P 500 y el Dow Jones es de 0,99, pero
+el test de Engle-Granger da un p-value de **0,39**: las series **no están cointegradas**. Por
+eso no sirve una estrategia de *pairs trading* basada en que el diferencial vuelva a cerrarse,
+y usar un índice como cobertura del otro es más riesgoso de lo que sugiere la correlación.
+
 **Conclusiones clave:**
 - Ambas series son **no estacionarias** con tendencia alcista de largo plazo y correlación muy alta.
 - En un mercado eficiente, el mejor pronóstico del precio de mañana es cercano al precio de hoy: los modelos *rolling* (ARIMA y LSTM) capturan exactamente eso y superan ampliamente al baseline.
 - Pronosticar a **largo horizonte** es arriesgado: el error se acumula y los cambios de régimen del mercado no son predecibles desde los precios pasados.
+
+## ⚠️ Limitaciones y lectura de los resultados
+
+- **Pronóstico a un día.** ARIMA y LSTM se evalúan con un esquema *rolling*: predicen solo el
+  día siguiente y se actualizan con el precio real. Un MAPE de 0,67% es esperable en ese
+  esquema, porque el precio de mañana se parece mucho al de hoy. La comparación justa es con
+  un pronóstico ingenuo (precio de mañana = precio de hoy); superarlo es lo que indicaría una
+  capacidad predictiva real.
+- **R² sobre precios.** El R² de 0,99 se calcula sobre el nivel del índice, que tiene una
+  tendencia fuerte. Medido sobre los retornos diarios, el resultado sería mucho más modesto.
+- **Horizontes largos.** Holt-Winters muestra cómo crece el error al proyectar muchos días sin
+  datos nuevos; los cambios de régimen del mercado no se pueden anticipar con precios pasados.
+- **Sin costos de transacción.** Las conclusiones sobre estrategias no consideran comisiones,
+  *spread* ni deslizamiento de precios.
+- **Datos descargados al ejecutar.** El notebook baja los datos de Yahoo Finance con fechas
+  fijas, pero el proveedor puede corregir cifras históricas, así que los resultados pueden
+  variar levemente entre ejecuciones.
 
 ## ▶️ Cómo ejecutar
 
